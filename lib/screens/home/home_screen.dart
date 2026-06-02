@@ -51,6 +51,34 @@ class _HomeScreenState
               );
     }).toList();
 
+    //sort filter//
+    if (selectedFilter == 'Terdekat') {
+      filteredPlaces.sort(
+        (a, b) =>
+            a.distance.compareTo(
+          b.distance,
+        ),
+      );
+    }
+
+    if (selectedFilter == 'Terjauh') {
+      filteredPlaces.sort(
+        (a, b) =>
+            b.distance.compareTo(
+          a.distance,
+        ),
+      );
+    }
+
+    if (selectedFilter == 'Rating') {
+      filteredPlaces.sort(
+        (a, b) =>
+            b.rating.compareTo(
+          a.rating,
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor:
           const Color(0xFFF5F7FA),
@@ -171,21 +199,16 @@ class _HomeScreenState
                           height: 24,
                         ),
 
-                        /// =========================
                         /// SEARCH BAR
-                        /// =========================
                         Container(
-                          decoration:
-                              BoxDecoration(
+                          decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius:
-                                BorderRadius
-                                    .circular(18),
+                                BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors
-                                    .black
-                                    .withOpacity(
+                                color:
+                                    Colors.black.withOpacity(
                                   0.04,
                                 ),
                                 blurRadius: 10,
@@ -193,31 +216,118 @@ class _HomeScreenState
                             ],
                           ),
 
-                          child: TextField(
-                            onChanged: (value) {
-                              setState(() {
-                                searchQuery =
-                                    value;
-                              });
-                            },
+                          child: Row(
+                            children: [
 
-                            decoration:
-                                const InputDecoration(
-                              hintText:
-                                  'Search workshop...',
-                              prefixIcon: Icon(
-                                Icons.search,
+                              /// SEARCH
+                              Expanded(
+                                child: TextField(
+                                  onChanged: (value) {
+                                    setState(() {
+                                      searchQuery = value;
+                                    });
+                                  },
+
+                                  decoration:
+                                      const InputDecoration(
+                                    hintText:
+                                        'Search workshop...',
+                                    prefixIcon:
+                                        Icon(Icons.search),
+                                    border:
+                                        InputBorder.none,
+                                    contentPadding:
+                                        EdgeInsets.symmetric(
+                                      vertical: 18,
+                                    ),
+                                  ),
+                                ),
                               ),
-                              border:
-                                  InputBorder.none,
-                              contentPadding:
-                                  EdgeInsets.symmetric(
-                                vertical: 18,
+
+                              /// FILTER BUTTON
+                              IconButton(
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    builder: (_) {
+                                      return Column(
+                                        mainAxisSize:
+                                            MainAxisSize.min,
+                                        children: [
+
+                                          ListTile(
+                                            leading:
+                                                const Icon(
+                                              Icons.near_me,
+                                            ),
+                                            title: const Text(
+                                              'Jarak Terdekat',
+                                            ),
+                                            onTap: () {
+                                              setState(() {
+                                                selectedFilter =
+                                                    'Terdekat';
+                                              });
+
+                                              Navigator.pop(
+                                                context,
+                                              );
+                                            },
+                                          ),
+
+                                          ListTile(
+                                            leading:
+                                                const Icon(
+                                              Icons.social_distance,
+                                            ),
+                                            title: const Text(
+                                              'Jarak Terjauh',
+                                            ),
+                                            onTap: () {
+                                              setState(() {
+                                                selectedFilter =
+                                                    'Terjauh';
+                                              });
+
+                                              Navigator.pop(
+                                                context,
+                                              );
+                                            },
+                                          ),
+
+                                          ListTile(
+                                            leading:
+                                                const Icon(
+                                              Icons.star,
+                                            ),
+                                            title: const Text(
+                                              'Rating Tertinggi',
+                                            ),
+                                            onTap: () {
+                                              setState(() {
+                                                selectedFilter =
+                                                    'Rating';
+                                              });
+
+                                              Navigator.pop(
+                                                context,
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+
+                                icon: const Icon(
+                                  Icons.filter_alt_outlined,
+                                  color: Color(0xFF2563EB),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
-
                         const SizedBox(
                           height: 24,
                         ),
@@ -382,4 +492,6 @@ class _HomeScreenState
       ),
     );
   }
+
+  String selectedFilter = 'Terdekat';
 }
