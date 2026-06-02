@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "657069396556",
+    "project_id": "bengkel-directory",
+    "storage_bucket": "bengkel-directory.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:657069396556:android:186c8ec233b98ace1c9ae9",
+        "android_client_info": {
+          "package_name": "com.example.cloud_computing_2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAF8GVecLag4U_qGLoQy6Mrc5kHYk0bGes"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
