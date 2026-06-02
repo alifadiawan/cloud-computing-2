@@ -6,12 +6,14 @@ import '../models/place_model.dart';
 class PlaceCard extends StatelessWidget {
   final PlaceModel place;
   final VoidCallback? onTap;
+  final VoidCallback? onFavoriteTap;
 
   const PlaceCard({
-    super.key,
-    required this.place,
-    this.onTap,
-  });
+  super.key,
+  required this.place,
+  this.onTap,
+  this.onFavoriteTap,
+});
 
   @override
   Widget build(BuildContext context) {
@@ -190,12 +192,17 @@ class PlaceCard extends StatelessWidget {
 
                   const SizedBox(height: 6),
 
-                  Icon(
-                    place.isFavorite
-                        ? Icons.favorite
-                        : Icons.favorite_border,
-                    color: Colors.red,
-                    size: 22,
+                  GestureDetector(
+                    onTap: onFavoriteTap,
+
+                    child: Icon(
+                      place.isFavorite
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+
+                      color: Colors.red,
+                      size: 22,
+                    ),
                   ),
                 ],
               ),

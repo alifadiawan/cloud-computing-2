@@ -5,6 +5,7 @@ import '../../providers/place_provider.dart';
 import '../../widgets/place_card.dart';
 import '../detail/place_detail_screen.dart';
 import '../map/map_screen.dart';
+import '../favorite/favorite_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -151,46 +152,90 @@ class _HomeScreenState
                             ),
 
                             /// MAP BUTTON
-                            Container(
-                              decoration:
-                                  BoxDecoration(
-                                color:
-                                    Colors.white,
-                                borderRadius:
-                                    BorderRadius
-                                        .circular(
-                                  16,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors
-                                        .black
-                                        .withOpacity(
-                                      0.05,
-                                    ),
-                                    blurRadius: 10,
-                                  ),
-                                ],
-                              ),
+                            Row(
+                              children: [
 
-                              child: IconButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const MapScreen(),
-                                    ),
-                                  );
-                                },
+                                /// FAVORITE BUTTON
+                                Container(
+                                  margin:
+                                      const EdgeInsets.only(
+                                    right: 10,
+                                  ),
 
-                                icon: const Icon(
-                                  Icons.map,
-                                  color: Color(
-                                    0xFF2563EB,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius:
+                                        BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black
+                                            .withOpacity(0.05),
+                                        blurRadius: 10,
+                                      ),
+                                    ],
+                                  ),
+
+                                  child: IconButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              const FavoriteScreen(),
+                                        ),
+                                      );
+                                    },
+
+                                    icon: const Icon(
+                                      Icons.favorite,
+                                      color: Colors.red,
+                                    ),
                                   ),
                                 ),
-                              ),
+
+                                /// MAP BUTTON
+                                Container(
+                                  decoration:
+                                      BoxDecoration(
+                                    color:
+                                        Colors.white,
+                                    borderRadius:
+                                        BorderRadius
+                                            .circular(
+                                      16,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors
+                                            .black
+                                            .withOpacity(
+                                          0.05,
+                                        ),
+                                        blurRadius: 10,
+                                      ),
+                                    ],
+                                  ),
+
+                                  child: IconButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              const MapScreen(),
+                                        ),
+                                      );
+                                    },
+
+                                    icon: const Icon(
+                                      Icons.map,
+                                      color: Color(
+                                        0xFF2563EB,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -470,6 +515,12 @@ class _HomeScreenState
                           (place) {
                             return PlaceCard(
                               place: place,
+
+                              onFavoriteTap: () {
+                                provider.toggleFavorite(
+                                  place.id,
+                                );
+                              },
 
                               onTap: () {
                                 Navigator.push(

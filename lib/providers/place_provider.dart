@@ -12,6 +12,14 @@ class PlaceProvider extends ChangeNotifier {
   /// =========================
   List<PlaceModel> _places = [];
 
+  List<PlaceModel> get favoritePlaces =>
+    _places
+        .where(
+          (place) =>
+              place.isFavorite,
+        )
+        .toList();
+        
   bool _isLoading = false;
 
   String _errorMessage = '';
@@ -110,6 +118,24 @@ class PlaceProvider extends ChangeNotifier {
   /// =========================
   Future<void> refreshPlaces() async {
   await fetchNearestPlaces();
+  }
+
+  /// =========================
+  /// TOGGLE FAVORITE
+  /// =========================
+  void toggleFavorite(int id) {
+    _places = _places.map((place) {
+      if (place.id == id) {
+        return place.copyWith(
+          isFavorite:
+              !place.isFavorite,
+        );
+      }
+
+      return place;
+    }).toList();
+
+    notifyListeners();
   }
 
   Future<void> fetchNearestPlaces() async {
