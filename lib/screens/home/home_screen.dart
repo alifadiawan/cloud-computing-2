@@ -25,7 +25,7 @@ class _HomeScreenState
     Future.microtask(() {
       context
           .read<PlaceProvider>()
-          .fetchPlaces();
+          .fetchNearestPlaces();
     });
   }
 

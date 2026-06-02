@@ -109,6 +109,28 @@ class PlaceProvider extends ChangeNotifier {
   /// REFRESH
   /// =========================
   Future<void> refreshPlaces() async {
-    await fetchPlaces();
+  await fetchNearestPlaces();
   }
+
+  Future<void> fetchNearestPlaces() async {
+  try {
+    _isLoading = true;
+
+    notifyListeners();
+
+    _places =
+        await _placeRepository
+            .getNearestPlaces();
+  } catch (e) {
+    _errorMessage =
+        'Failed to get nearest places';
+
+    debugPrint('$e');
+  } finally {
+    _isLoading = false;
+
+    notifyListeners();
+  }
+}
+
 }

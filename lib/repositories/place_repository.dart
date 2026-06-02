@@ -42,4 +42,10 @@ class PlaceRepository {
     return await _firebaseService
         .searchPlaces(keyword);
   }
+
+  Future<List<PlaceModel>>
+    getNearestPlaces() async {
+  return await _firebaseService
+      .getNearestPlaces();
+}
 }
