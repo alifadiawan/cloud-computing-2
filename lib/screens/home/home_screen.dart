@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/place_provider.dart';
 import '../../widgets/place_card.dart';
+import '../../widgets/FilterSheet.dart';
 import '../detail/place_detail_screen.dart';
 import '../map/map_screen.dart';
 import '../favorite/favorite_screen.dart';
@@ -268,6 +269,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
                             // Filter button
                             GestureDetector(
+                              onTap: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (_) => FilterSheet(
+                                    selectedFilter: selectedFilter,
+                                    onSelected: (value) {
+                                      setState(() => selectedFilter = value);
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                );
+                              },
                               child: Container(
                                 width: 48,
                                 height: 48,
