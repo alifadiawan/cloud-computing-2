@@ -33,10 +33,10 @@ class PlaceDetailScreen extends StatelessWidget {
                       placeholder: (context, url) =>
                           const Center(child: CircularProgressIndicator()),
                       errorWidget: (context, url, error) {
-                        return buildPlaceholderImage();
+                        return buildPlaceholderImage(place.name, place.category);
                       },
                     )
-                  : buildPlaceholderImage(),
+                  : buildPlaceholderImage(place.name, place.category),
             ),
 
             /// =========================
@@ -65,7 +65,7 @@ class PlaceDetailScreen extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
+                      color: Colors.blue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -177,13 +177,33 @@ class PlaceDetailScreen extends StatelessWidget {
   }
 
   /// =========================
-  /// PLACEHOLDER IMAGE
+  /// PLACEHOLDER IMAGE WITH DYNAMIC FLICKR SEARCH FALLBACK
   /// =========================
-  Widget buildPlaceholderImage() {
-    return Container(
-      color: Colors.grey.shade300,
-      alignment: Alignment.center,
-      child: const Icon(Icons.store, size: 100, color: Colors.grey),
+  Widget buildPlaceholderImage(String name, String category) {
+    final fallbackUrl = _getFallbackPhotoUrl(name, category);
+    return CachedNetworkImage(
+      imageUrl: fallbackUrl,
+      fit: BoxFit.cover,
+      placeholder: (context, url) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+      errorWidget: (context, url, error) => Container(
+        color: Colors.grey.shade300,
+        alignment: Alignment.center,
+        child: const Icon(Icons.store, size: 100, color: Colors.grey),
+      ),
     );
+  }
+
+  String _getFallbackPhotoUrl(String name, String category) {
+    // Ambil kata pertama nama bengkel + kategori bengkel (misal: "Sentosa sepeda-motor")
+    final searchWord = name.split(' ').first;
+    final cleanCategory = category
+        .replaceAll('Bengkel ', '')
+        .replaceAll(' ', '-')
+        .toLowerCase();
+
+    // Meminta LoremFlickr untuk mencari gambar di Flickr yang cocok dengan tag tersebut
+    return 'https://loremflickr.com/800/600/workshop,repair,$searchWord,$cleanCategory';
   }
 }

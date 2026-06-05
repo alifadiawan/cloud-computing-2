@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../models/place_model.dart';
+import 'location_service.dart';
 
 class FirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -100,70 +101,57 @@ class FirebaseService {
     }
   }
 
-    Future<List<PlaceModel>> getNearestPlaces() async {
-  try {
-    /// GET USER LOCATION
-    LocationPermission permission =
-        await Geolocator.checkPermission();
+  Future<List<PlaceModel>> getNearestPlaces() async {
+    double userLat = -7.2575; // Surabaya default latitude
+    double userLng = 112.7521; // Surabaya default longitude
 
-    if (permission == LocationPermission.denied) {
-      permission =
-          await Geolocator.requestPermission();
+    try {
+      final position = await LocationService.getCurrentLocation();
+      if (position != null) {
+        userLat = position.latitude;
+        userLng = position.longitude;
+      }
+    } catch (e) {
+      print("Error getting location in getNearestPlaces: $e");
     }
 
-    Position position =
-        await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.best,
-    );
+    try {
+      /// GET FIRESTORE DATA
+      final QuerySnapshot snapshot =
+          await _firestore.collection('places').get();
 
-    print(position.latitude);
-    print(position.longitude);
+      final places = snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
 
-    final double userLat = position.latitude;
-    final double userLng = position.longitude;
+        /// CALCULATE DISTANCE
+        double distanceInMeters = Geolocator.distanceBetween(
+          userLat,
+          userLng,
+          (data['latitude'] ?? 0).toDouble(),
+          (data['longitude'] ?? 0).toDouble(),
+        );
 
-    /// GET FIRESTORE DATA
-    final QuerySnapshot snapshot =
-        await _firestore.collection('places').get();
+        /// METER -> KM
+        double distanceKm = distanceInMeters / 1000;
 
-    final places = snapshot.docs.map((doc) {
-      final data =
-          doc.data() as Map<String, dynamic>;
+        return PlaceModel.fromMap(
+          data,
+        ).copyWith(
+          distance: distanceKm,
+        );
+      }).toList();
 
-      /// CALCULATE DISTANCE
-      double distanceInMeters =
-          Geolocator.distanceBetween(
-        userLat,
-        userLng,
-        (data['latitude'] ?? 0).toDouble(),
-        (data['longitude'] ?? 0).toDouble(),
+      /// SORT NEAREST
+      places.sort(
+        (a, b) => a.distance.compareTo(b.distance),
       );
 
-      /// METER -> KM
-      double distanceKm =
-          distanceInMeters / 1000;
-
-      return PlaceModel.fromMap(
-        data,
-      ).copyWith(
-        distance: distanceKm,
+      return places;
+    } catch (e) {
+      throw Exception(
+        'Failed to get nearest places: $e',
       );
-    }).toList();
-
-    /// SORT NEAREST
-    places.sort(
-      (a, b) =>
-          a.distance.compareTo(
-        b.distance,
-      ),
-    );
-
-    return places;
-  } catch (e) {
-    throw Exception(
-      'Failed to get nearest places: $e',
-    );
+    }
   }
-}
 
 }

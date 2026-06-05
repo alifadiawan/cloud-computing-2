@@ -54,9 +54,9 @@ class PlaceCard extends StatelessWidget {
                         ),
                         errorWidget:
                             (context, url, error) =>
-                                buildPlaceholderImage(),
+                                buildPlaceholderImage(place.name, place.category),
                       )
-                    : buildPlaceholderImage(),
+                    : buildPlaceholderImage(place.name, place.category),
               ),
 
               const SizedBox(width: 14),
@@ -91,7 +91,7 @@ class PlaceCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: Colors.blue
-                            .withOpacity(0.1),
+                            .withValues(alpha: 0.1),
                         borderRadius:
                             BorderRadius.circular(20),
                       ),
@@ -214,19 +214,49 @@ class PlaceCard extends StatelessWidget {
   }
 
   /// =========================
-  /// PLACEHOLDER IMAGE
+  /// PLACEHOLDER IMAGE WITH DYNAMIC FLICKR SEARCH FALLBACK
   /// =========================
-  Widget buildPlaceholderImage() {
-    return Container(
+  Widget buildPlaceholderImage(String name, String category) {
+    final fallbackUrl = _getFallbackPhotoUrl(name, category);
+    return CachedNetworkImage(
+      imageUrl: fallbackUrl,
       width: 80,
       height: 80,
-      color: Colors.grey.shade200,
-      alignment: Alignment.center,
-      child: const Icon(
-        Icons.store,
-        size: 40,
-        color: Colors.grey,
+      fit: BoxFit.cover,
+      placeholder: (context, url) => Container(
+        width: 80,
+        height: 80,
+        color: Colors.grey.shade200,
+        alignment: Alignment.center,
+        child: const SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+      errorWidget: (context, url, error) => Container(
+        width: 80,
+        height: 80,
+        color: Colors.grey.shade200,
+        alignment: Alignment.center,
+        child: const Icon(
+          Icons.store,
+          size: 40,
+          color: Colors.grey,
+        ),
       ),
     );
+  }
+
+  String _getFallbackPhotoUrl(String name, String category) {
+    // Ambil kata pertama nama bengkel + kategori bengkel (misal: "Sentosa sepeda-motor")
+    final searchWord = name.split(' ').first;
+    final cleanCategory = category
+        .replaceAll('Bengkel ', '')
+        .replaceAll(' ', '-')
+        .toLowerCase();
+
+    // Meminta LoremFlickr untuk mencari gambar di Flickr yang cocok dengan tag tersebut
+    return 'https://loremflickr.com/400/300/workshop,repair,$searchWord,$cleanCategory';
   }
 }

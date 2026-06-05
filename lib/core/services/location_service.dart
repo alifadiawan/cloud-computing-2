@@ -6,41 +6,46 @@ class LocationService {
   /// =========================
   static Future<Position?>
       getCurrentLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+    try {
+      bool serviceEnabled;
+      LocationPermission permission;
 
-    /// CHECK GPS SERVICE
-    serviceEnabled =
-        await Geolocator.isLocationServiceEnabled();
+      /// CHECK GPS SERVICE
+      serviceEnabled =
+          await Geolocator.isLocationServiceEnabled();
 
-    if (!serviceEnabled) {
-      return null;
-    }
+      if (!serviceEnabled) {
+        return null;
+      }
 
-    /// CHECK PERMISSION
-    permission =
-        await Geolocator.checkPermission();
-
-    if (permission ==
-        LocationPermission.denied) {
+      /// CHECK PERMISSION
       permission =
-          await Geolocator.requestPermission();
+          await Geolocator.checkPermission();
 
       if (permission ==
           LocationPermission.denied) {
+        permission =
+            await Geolocator.requestPermission();
+
+        if (permission ==
+            LocationPermission.denied) {
+          return null;
+        }
+      }
+
+      if (permission ==
+          LocationPermission.deniedForever) {
         return null;
       }
-    }
 
-    if (permission ==
-        LocationPermission.deniedForever) {
+      /// GET CURRENT POSITION
+      return await Geolocator.getCurrentPosition(
+        desiredAccuracy:
+            LocationAccuracy.high,
+      );
+    } catch (e) {
+      print("Error getting location: $e");
       return null;
     }
-
-    /// GET CURRENT POSITION
-    return await Geolocator.getCurrentPosition(
-      desiredAccuracy:
-          LocationAccuracy.high,
-    );
   }
 }
