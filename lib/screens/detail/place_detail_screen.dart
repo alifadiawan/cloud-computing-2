@@ -33,10 +33,10 @@ class PlaceDetailScreen extends StatelessWidget {
                       placeholder: (context, url) =>
                           const Center(child: CircularProgressIndicator()),
                       errorWidget: (context, url, error) {
-                        return buildPlaceholderImage();
+                        return buildPlaceholderImage(place.category);
                       },
                     )
-                  : buildPlaceholderImage(),
+                  : buildPlaceholderImage(place.category),
             ),
 
             /// =========================
@@ -65,7 +65,7 @@ class PlaceDetailScreen extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
+                      color: Colors.blue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -177,13 +177,32 @@ class PlaceDetailScreen extends StatelessWidget {
   }
 
   /// =========================
-  /// PLACEHOLDER IMAGE
+  /// PLACEHOLDER IMAGE WITH UNSPLASH FALLBACK
   /// =========================
-  Widget buildPlaceholderImage() {
-    return Container(
-      color: Colors.grey.shade300,
-      alignment: Alignment.center,
-      child: const Icon(Icons.store, size: 100, color: Colors.grey),
+  Widget buildPlaceholderImage(String category) {
+    final fallbackUrl = _getFallbackPhotoUrl(category);
+    return CachedNetworkImage(
+      imageUrl: fallbackUrl,
+      fit: BoxFit.cover,
+      placeholder: (context, url) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+      errorWidget: (context, url, error) => Container(
+        color: Colors.grey.shade300,
+        alignment: Alignment.center,
+        child: const Icon(Icons.store, size: 100, color: Colors.grey),
+      ),
     );
+  }
+
+  String _getFallbackPhotoUrl(String category) {
+    final cat = category.toLowerCase();
+    if (cat.contains('mobil')) {
+      return 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=800&q=80';
+    } else if (cat.contains('motor')) {
+      return 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80';
+    } else {
+      return 'https://images.unsplash.com/photo-1517524206127-48bbd363f3d7?auto=format&fit=crop&w=800&q=80';
+    }
   }
 }

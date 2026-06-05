@@ -54,9 +54,9 @@ class PlaceCard extends StatelessWidget {
                         ),
                         errorWidget:
                             (context, url, error) =>
-                                buildPlaceholderImage(),
+                                buildPlaceholderImage(place.category),
                       )
-                    : buildPlaceholderImage(),
+                    : buildPlaceholderImage(place.category),
               ),
 
               const SizedBox(width: 14),
@@ -91,7 +91,7 @@ class PlaceCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: Colors.blue
-                            .withOpacity(0.1),
+                            .withValues(alpha: 0.1),
                         borderRadius:
                             BorderRadius.circular(20),
                       ),
@@ -214,19 +214,51 @@ class PlaceCard extends StatelessWidget {
   }
 
   /// =========================
-  /// PLACEHOLDER IMAGE
+  /// PLACEHOLDER IMAGE WITH UNSPLASH FALLBACK
   /// =========================
-  Widget buildPlaceholderImage() {
-    return Container(
+  Widget buildPlaceholderImage(String category) {
+    final fallbackUrl = _getFallbackPhotoUrl(category);
+    return CachedNetworkImage(
+      imageUrl: fallbackUrl,
       width: 80,
       height: 80,
-      color: Colors.grey.shade200,
-      alignment: Alignment.center,
-      child: const Icon(
-        Icons.store,
-        size: 40,
-        color: Colors.grey,
+      fit: BoxFit.cover,
+      placeholder: (context, url) => Container(
+        width: 80,
+        height: 80,
+        color: Colors.grey.shade200,
+        alignment: Alignment.center,
+        child: const SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+      errorWidget: (context, url, error) => Container(
+        width: 80,
+        height: 80,
+        color: Colors.grey.shade200,
+        alignment: Alignment.center,
+        child: const Icon(
+          Icons.store,
+          size: 40,
+          color: Colors.grey,
+        ),
       ),
     );
+  }
+
+  String _getFallbackPhotoUrl(String category) {
+    final cat = category.toLowerCase();
+    if (cat.contains('mobil')) {
+      // High quality car repair shop photo
+      return 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80';
+    } else if (cat.contains('motor')) {
+      // High quality motorcycle repair shop photo
+      return 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=400&q=80';
+    } else {
+      // General high quality workshop tools / auto shop photo
+      return 'https://images.unsplash.com/photo-1517524206127-48bbd363f3d7?auto=format&fit=crop&w=400&q=80';
+    }
   }
 }
