@@ -33,10 +33,10 @@ class PlaceDetailScreen extends StatelessWidget {
                       placeholder: (context, url) =>
                           const Center(child: CircularProgressIndicator()),
                       errorWidget: (context, url, error) {
-                        return buildPlaceholderImage(place.category);
+                        return buildPlaceholderImage(place.name, place.category);
                       },
                     )
-                  : buildPlaceholderImage(place.category),
+                  : buildPlaceholderImage(place.name, place.category),
             ),
 
             /// =========================
@@ -177,10 +177,10 @@ class PlaceDetailScreen extends StatelessWidget {
   }
 
   /// =========================
-  /// PLACEHOLDER IMAGE WITH UNSPLASH FALLBACK
+  /// PLACEHOLDER IMAGE WITH DYNAMIC FLICKR SEARCH FALLBACK
   /// =========================
-  Widget buildPlaceholderImage(String category) {
-    final fallbackUrl = _getFallbackPhotoUrl(category);
+  Widget buildPlaceholderImage(String name, String category) {
+    final fallbackUrl = _getFallbackPhotoUrl(name, category);
     return CachedNetworkImage(
       imageUrl: fallbackUrl,
       fit: BoxFit.cover,
@@ -195,14 +195,15 @@ class PlaceDetailScreen extends StatelessWidget {
     );
   }
 
-  String _getFallbackPhotoUrl(String category) {
-    final cat = category.toLowerCase();
-    if (cat.contains('mobil')) {
-      return 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=800&q=80';
-    } else if (cat.contains('motor')) {
-      return 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80';
-    } else {
-      return 'https://images.unsplash.com/photo-1517524206127-48bbd363f3d7?auto=format&fit=crop&w=800&q=80';
-    }
+  String _getFallbackPhotoUrl(String name, String category) {
+    // Ambil kata pertama nama bengkel + kategori bengkel (misal: "Sentosa sepeda-motor")
+    final searchWord = name.split(' ').first;
+    final cleanCategory = category
+        .replaceAll('Bengkel ', '')
+        .replaceAll(' ', '-')
+        .toLowerCase();
+
+    // Meminta LoremFlickr untuk mencari gambar di Flickr yang cocok dengan tag tersebut
+    return 'https://loremflickr.com/800/600/workshop,repair,$searchWord,$cleanCategory';
   }
 }
