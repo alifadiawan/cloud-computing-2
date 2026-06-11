@@ -2,8 +2,10 @@ import '../core/services/firebase_service.dart';
 import '../models/place_model.dart';
 
 class PlaceRepository {
-  final FirebaseService _firebaseService =
-      FirebaseService();
+  final FirebaseService _firebaseService;
+
+  PlaceRepository({FirebaseService? firebaseService})
+      : _firebaseService = firebaseService ?? FirebaseService();
 
   /// =========================
   /// GET ALL PLACES

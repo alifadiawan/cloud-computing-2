@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/place_provider.dart';
 import '../../widgets/place_card.dart';
-import '../../widgets/FilterSheet.dart';
+import '../../widgets/filter_sheet.dart';
 import '../detail/place_detail_screen.dart';
 import '../map/map_screen.dart';
 import '../favorite/favorite_screen.dart';
@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<PlaceProvider>().fetchNearestPlaces();
     });
   }
@@ -531,7 +531,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               decoration: BoxDecoration(
                                 color: Theme.of(
                                   context,
-                                ).colorScheme.surfaceVariant,
+                                ).colorScheme.surfaceContainerHighest,
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(

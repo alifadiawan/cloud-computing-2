@@ -41,11 +41,13 @@ class _MapScreenState extends State<MapScreen> {
     super.initState();
 
     Future.microtask(() async {
-      await context
-          .read<PlaceProvider>()
-          .fetchPlaces();
+      if (mounted) {
+        await context
+            .read<PlaceProvider>()
+            .fetchPlaces();
 
-      await initializeMap();
+        await initializeMap();
+      }
     });
   }
 

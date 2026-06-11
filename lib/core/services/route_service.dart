@@ -14,12 +14,14 @@ class RouteService {
       getRouteCoordinates({
     required LatLng start,
     required LatLng end,
+    http.Client? client,
   }) async {
     final url = Uri.parse(
       'https://api.openrouteservice.org/v2/directions/driving-car?api_key=$apiKey&start=${start.longitude},${start.latitude}&end=${end.longitude},${end.latitude}',
     );
 
-    final response = await http.get(url);
+    final http.Client httpClient = client ?? http.Client();
+    final response = await httpClient.get(url);
 
     if (response.statusCode == 200) {
       final data =

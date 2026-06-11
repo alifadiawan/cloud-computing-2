@@ -4,8 +4,10 @@ import '../models/place_model.dart';
 import '../repositories/place_repository.dart';
 
 class PlaceProvider extends ChangeNotifier {
-  final PlaceRepository _placeRepository =
-      PlaceRepository();
+  final PlaceRepository _placeRepository;
+
+  PlaceProvider({PlaceRepository? placeRepository})
+      : _placeRepository = placeRepository ?? PlaceRepository();
 
   /// =========================
   /// STATES

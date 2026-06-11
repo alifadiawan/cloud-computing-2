@@ -1,10 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../models/place_model.dart';
 import 'location_service.dart';
 
 class FirebaseService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore;
+
+  FirebaseService({FirebaseFirestore? firestore})
+      : _firestore = firestore ?? FirebaseFirestore.instance;
 
   /// =========================
   /// GET ALL PLACES
@@ -112,7 +116,7 @@ class FirebaseService {
         userLng = position.longitude;
       }
     } catch (e) {
-      print("Error getting location in getNearestPlaces: $e");
+      debugPrint("Error getting location in getNearestPlaces: $e");
     }
 
     try {
