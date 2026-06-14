@@ -8,6 +8,7 @@ import '../../widgets/FilterSheet.dart';
 import '../detail/place_detail_screen.dart';
 import '../map/map_screen.dart';
 import '../favorite/favorite_screen.dart';
+import '../../models/place_model.dart'; // Pastikan import model ini ada sesuai path proyekmu
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,6 +20,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String searchQuery = '';
   String? selectedFilter = 'Terdekat';
+  
+  // ==========================================
+  // FIX: Tambahkan list lokal untuk mengunci data jarak agar tidak hilang saat mengetik
+  // ==========================================
+  List<PlaceModel> _allPlaces = [];
 
   // ---> TEMA 2: Trust & Professional (Navy & Steel) <---
   final Color _primaryColor = const Color(0xFF1A365D); // Navy Blue
@@ -121,10 +127,19 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final provider = Provider.of<PlaceProvider>(context);
 
-    /// =========================
-    /// FILTER SEARCH & SORTING
-    /// =========================
-    final filteredPlaces = provider.places.where((place) {
+    // ==========================================
+    // FIX: Amankan data dari provider ke dalam list lokal saat loading selesai
+    // ==========================================
+    if (provider.isLoading) {
+      _allPlaces.clear(); // Kosongkan saat refresh/loading ulang
+    } else if (_allPlaces.isEmpty && provider.places.isNotEmpty) {
+      _allPlaces = List.from(provider.places); // Kunci data beserta hitungan jaraknya
+    }
+
+    /// ==========================================
+    /// FILTER SEARCH & SORTING (Sekarang aman menggunakan _allPlaces)
+    /// ==========================================
+    final filteredPlaces = _allPlaces.where((place) {
       return place.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
           place.category.toLowerCase().contains(searchQuery.toLowerCase());
     }).toList();
@@ -138,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Scaffold(
-      backgroundColor: _bgBottom, // Warna dasar yang konsisten
+      backgroundColor: _bgBottom, 
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -369,7 +384,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(height: 28),
 
                           /// =========================
-                          /// INFO CARD (Lebih Minimalis)
+                          /// INFO CARD
                           /// =========================
                           Container(
                             padding: const EdgeInsets.all(16),
@@ -497,7 +512,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           }),
                           
-                          // Tambahan padding bawah agar list tidak terpotong (Safe Area bottom)
                           const SizedBox(height: 20),
                         ],
                       ),
