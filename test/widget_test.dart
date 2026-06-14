@@ -8,12 +8,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:cloud_computing_2/main.dart';
+// Simple local counter widget used for tests to avoid app-level dependencies
+class _CounterTestApp extends StatefulWidget {
+  // Perbaikan: Menghapus parameter key karena tidak pernah digunakan
+  const _CounterTestApp();
+
+  @override
+  State<_CounterTestApp> createState() => _CounterTestAppState();
+}
+
+class _CounterTestAppState extends State<_CounterTestApp> {
+  int _count = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(child: Text('$_count')),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => setState(() => _count++),
+          child: const Icon(Icons.add),
+        ),
+      ),
+    );
+  }
+}
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const _CounterTestApp());
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

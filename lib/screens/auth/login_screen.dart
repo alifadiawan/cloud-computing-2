@@ -94,7 +94,6 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } on FirebaseAuthException catch (e) {
       String message = 'Terjadi kesalahan.';
-      // ... (Penanganan error yang sama seperti sebelumnya)
       if (e.code == 'user-not-found') {
         message = 'Email tidak terdaftar. Silakan daftar terlebih dahulu.';
       } else if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
@@ -164,7 +163,8 @@ class _LoginScreenState extends State<LoginScreen> {
       hintText: hintText,
       hintStyle: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 14),
       labelStyle: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 14),
-      prefixIcon: Icon(prefixIcon, color: _primaryColor.withOpacity(0.7)),
+      // Mengganti withOpacity menjadi withValues sesuai standar Flutter terbaru
+      prefixIcon: Icon(prefixIcon, color: _primaryColor.withValues(alpha: 0.7)),
       suffixIcon: suffixIcon,
       filled: true,
       fillColor: Colors.white,
@@ -219,7 +219,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: _primaryColor.withOpacity(0.15),
+                            // Mengganti withOpacity menjadi withValues
+                            color: _primaryColor.withValues(alpha: 0.15),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -262,7 +263,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            // Mengganti withOpacity menjadi withValues
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 24,
                             offset: const Offset(0, 8),
                           ),
@@ -383,7 +385,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: _primaryColor.withOpacity(0.3),
+                                      // Mengganti withOpacity menjadi withValues
+                                      color: _primaryColor.withValues(alpha: 0.3),
                                       blurRadius: 12,
                                       offset: const Offset(0, 6),
                                     ),
@@ -461,7 +464,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-      )
+      ),
     );
   }
 }
