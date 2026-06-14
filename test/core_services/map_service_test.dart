@@ -7,11 +7,12 @@ void main() {
     late Uri capturedUri;
     LaunchMode? capturedMode;
 
-    final mockLauncher = (Uri url, {LaunchMode? mode}) async {
+    // Perbaikan: Menggunakan deklarasi fungsi standar daripada variabel
+    Future<bool> mockLauncher(Uri url, {LaunchMode? mode}) async {
       capturedUri = url;
       capturedMode = mode;
       return true;
-    };
+    }
 
     await MapService.openGoogleMaps(
       -7.25,
@@ -19,8 +20,10 @@ void main() {
       launcher: mockLauncher,
     );
 
-    expect(capturedUri.toString(),
-        'https://www.google.com/maps/dir/?api=1&destination=-7.25,112.75');
+    expect(
+      capturedUri.toString(),
+      'https://www.google.com/maps/dir/?api=1&destination=-7.25,112.75',
+    );
     expect(capturedMode, LaunchMode.externalApplication);
   });
 }

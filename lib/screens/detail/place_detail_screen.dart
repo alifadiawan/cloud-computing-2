@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -289,12 +290,25 @@ class PlaceDetailScreen extends StatelessWidget {
         final String category = firebaseData?['category'] ?? place.category;
         final double rating = (firebaseData?['rating'] ?? place.rating).toDouble();
         final String address = firebaseData?['address'] ?? place.address;
-        final String photoUrl = firebaseData?['photo_url'] ?? place.photoUrl;
         final String description = firebaseData?['description'] ?? 'Tempat bengkel kendaraan roda dua tepercaya.';
-
+        
         final Map<String, dynamic>? openingHoursMap = firebaseData?['opening_hours'] as Map<String, dynamic>?;
         final String todayHours = _getTodayOpeningHours(openingHoursMap);
         final String phoneNumber = firebaseData?['phone'] ?? 'Tidak ada nomor';
+
+        // Logika untuk mengumpulkan URL gambar menjadi List (Mendukung lebih dari 1 gambar)
+        List<String> imageUrls = [];
+        if (firebaseData?['photo_url'] != null && firebaseData!['photo_url'].toString().isNotEmpty) {
+          imageUrls.add(firebaseData['photo_url']);
+        }
+        if (firebaseData?['photo_url_2'] != null && firebaseData!['photo_url_2'].toString().isNotEmpty) {
+          imageUrls.add(firebaseData['photo_url_2']);
+        }
+        
+        // Fallback jika kosong
+        if (imageUrls.isEmpty && place.photoUrl.isNotEmpty) {
+          imageUrls.add(place.photoUrl);
+        }
 
         return Scaffold(
           backgroundColor: _bgBottom,
@@ -393,24 +407,22 @@ class PlaceDetailScreen extends StatelessWidget {
                   background: Stack(
                     fit: StackFit.expand,
                     children: [
-                      photoUrl.isNotEmpty
-                          ? CachedNetworkImage(
-                              imageUrl: photoUrl,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => Center(
-                                child: CircularProgressIndicator(color: _secondaryColor),
-                              ),
-                              errorWidget: (context, url, error) {
-                                return buildPlaceholderImage(name, category);
-                              },
-                            )
-                          : buildPlaceholderImage(name, category),
+                      // Memanggil Widget Auto Slide Carousel
+                      AutoSlideCarousel(
+                        imageUrls: imageUrls,
+                        fallbackName: name,
+                        fallbackCategory: category,
+                        secondaryColor: _secondaryColor,
+                        bgBottom: _bgBottom,
+                      ),
+                      // Gradient Overlay agar tombol back tetap terlihat jelas
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
+                              Colors.black.withValues(alpha: 0.4),
                               Colors.transparent,
                               Colors.black.withValues(alpha: 0.5),
                             ],
@@ -495,7 +507,6 @@ class PlaceDetailScreen extends StatelessWidget {
                         const SizedBox(height: 24),
                         Row(
                           children: [
-                            // DI REVISI SINI: Menambahkan properti onTap agar kartu Jam bisa di-klik
                             _buildQuickInfoCard(
                               icon: Icons.access_time_filled_rounded,
                               iconColor: _secondaryColor,
@@ -587,16 +598,84 @@ class PlaceDetailScreen extends StatelessWidget {
       },
     );
   }
+}
 
-  Widget buildPlaceholderImage(String name, String category) {
-    final fallbackUrl = _getFallbackPhotoUrl(name, category);
+/// =======================================================================
+/// WIDGET BARU: AutoSlideCarousel
+/// Digunakan khusus untuk menampilkan gambar bergeser secara otomatis
+/// =======================================================================
+class AutoSlideCarousel extends StatefulWidget {
+  final List<String> imageUrls;
+  final String fallbackName;
+  final String fallbackCategory;
+  final Color secondaryColor;
+  final Color bgBottom;
+
+  const AutoSlideCarousel({
+    super.key,
+    required this.imageUrls,
+    required this.fallbackName,
+    required this.fallbackCategory,
+    required this.secondaryColor,
+    required this.bgBottom,
+  });
+
+  @override
+  State<AutoSlideCarousel> createState() => _AutoSlideCarouselState();
+}
+
+class _AutoSlideCarouselState extends State<AutoSlideCarousel> {
+  late PageController _pageController;
+  int _currentPage = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: 0);
+
+    // Jalankan timer hanya jika gambar lebih dari 1
+    if (widget.imageUrls.length > 1) {
+      _timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
+        if (_currentPage < widget.imageUrls.length - 1) {
+          _currentPage++;
+        } else {
+          _currentPage = 0; // Kembali ke awal
+        }
+
+        if (_pageController.hasClients) {
+          _pageController.animateToPage(
+            _currentPage,
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  Widget _buildPlaceholderImage() {
+    final searchWord = widget.fallbackName.split(' ').first;
+    final cleanCategory = widget.fallbackCategory
+        .replaceAll('Bengkel ', '')
+        .replaceAll(' ', '-')
+        .toLowerCase();
+    final fallbackUrl = 'https://loremflickr.com/800/600/workshop,repair,$searchWord,$cleanCategory';
+
     return CachedNetworkImage(
       imageUrl: fallbackUrl,
       fit: BoxFit.cover,
       placeholder: (context, url) => Container(
-        color: _bgBottom,
+        color: widget.bgBottom,
         child: Center(
-          child: CircularProgressIndicator(color: _secondaryColor),
+          child: CircularProgressIndicator(color: widget.secondaryColor),
         ),
       ),
       errorWidget: (context, url, error) => Container(
@@ -607,13 +686,59 @@ class PlaceDetailScreen extends StatelessWidget {
     );
   }
 
-  String _getFallbackPhotoUrl(String name, String category) {
-    final searchWord = name.split(' ').first;
-    final cleanCategory = category
-        .replaceAll('Bengkel ', '')
-        .replaceAll(' ', '-')
-        .toLowerCase();
+  @override
+  Widget build(BuildContext context) {
+    if (widget.imageUrls.isEmpty) {
+      return _buildPlaceholderImage();
+    }
 
-    return 'https://loremflickr.com/800/600/workshop,repair,$searchWord,$cleanCategory';
+    return Stack(
+      children: [
+        PageView.builder(
+          controller: _pageController,
+          itemCount: widget.imageUrls.length,
+          onPageChanged: (int page) {
+            setState(() {
+              _currentPage = page;
+            });
+          },
+          itemBuilder: (context, index) {
+            return CachedNetworkImage(
+              imageUrl: widget.imageUrls[index],
+              fit: BoxFit.cover,
+              placeholder: (context, url) => Container(
+                color: widget.bgBottom,
+                child: Center(
+                  child: CircularProgressIndicator(color: widget.secondaryColor),
+                ),
+              ),
+              errorWidget: (context, url, error) => _buildPlaceholderImage(),
+            );
+          },
+        ),
+        // Indikator Titik (Dots) di bagian bawah gambar
+        if (widget.imageUrls.length > 1)
+          Positioned(
+            bottom: 40, // Diletakkan di atas efek rounded container bawah
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(widget.imageUrls.length, (index) {
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: _currentPage == index ? 20 : 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: _currentPage == index ? Colors.white : Colors.white.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                );
+              }),
+            ),
+          ),
+      ],
+    );
   }
 }

@@ -10,7 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 // Simple local counter widget used for tests to avoid app-level dependencies
 class _CounterTestApp extends StatefulWidget {
-  const _CounterTestApp({Key? key}) : super(key: key);
+  // Perbaikan: Menghapus parameter key karena tidak pernah digunakan
+  const _CounterTestApp();
 
   @override
   State<_CounterTestApp> createState() => _CounterTestAppState();
