@@ -4,7 +4,11 @@ class FilterSheet extends StatelessWidget {
   final String? selectedFilter;
   final ValueChanged<String> onSelected;
 
-  const FilterSheet({required this.selectedFilter, required this.onSelected});
+  const FilterSheet({
+    super.key,
+    required this.selectedFilter,
+    required this.onSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
